@@ -1,0 +1,568 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Your Cart - ShopEasy{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 3rem 0;
+        text-align: center;
+        border-radius: 0 0 20px 20px;
+        margin-bottom: 3rem;
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Cart Container */
+    .cart-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 3rem;
+        margin-bottom: 3rem;
+    }
+
+    @media (max-width: 768px) {
+        .cart-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Cart Items */
+    .cart-items {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    .cart-item {
+        display: grid;
+        grid-template-columns: 100px 2fr 1fr auto;
+        gap: 1.5rem;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+        align-items: center;
+    }
+
+    @media (max-width: 768px) {
+        .cart-item {
+            grid-template-columns: 80px 1fr;
+            grid-template-rows: auto auto;
+            gap: 1rem;
+        }
+        
+        .cart-item-info {
+            grid-column: 2;
+        }
+        
+        .cart-item-quantity {
+            grid-column: 1 / span 2;
+        }
+        
+        .cart-item-price {
+            grid-column: 2;
+            text-align: right;
+        }
+    }
+
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+
+    .cart-item-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .cart-item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .cart-item-info h3 {
+        margin-bottom: 0.5rem;
+        color: var(--dark);
+    }
+
+    .cart-item-info p {
+        color: var(--gray);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .cart-item-quantity {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .quantity-btn {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #e5e7eb;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .quantity-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .quantity-input {
+        width: 50px;
+        text-align: center;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 0.3rem;
+    }
+
+    .cart-item-price {
+        text-align: right;
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 1.2rem;
+    }
+
+    .remove-item {
+        color: var(--danger);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .remove-item:hover {
+        background: #fee2e2;
+    }
+
+    /* Cart Summary */
+    .cart-summary {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        position: sticky;
+        top: 2rem;
+        height: fit-content;
+    }
+
+    .summary-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--dark);
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 1rem;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .summary-total {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        border-top: 2px solid #e5e7eb;
+        padding-top: 1rem;
+        margin-top: 1rem;
+    }
+
+    .discount-code {
+        display: flex;
+        gap: 0.5rem;
+        margin: 1.5rem 0;
+    }
+
+    .discount-code input {
+        flex: 1;
+        padding: 0.8rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+    }
+
+    /* Empty Cart */
+    .empty-cart {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    .empty-cart i {
+        font-size: 4rem;
+        color: var(--gray);
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-cart h2 {
+        margin-bottom: 1rem;
+        color: var(--dark);
+    }
+
+    .empty-cart p {
+        color: var(--gray);
+        margin-bottom: 2rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Continue Shopping Button */
+    .continue-shopping {
+        display: inline-block;
+        padding: 1rem 2rem;
+        background: var(--primary);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .continue-shopping:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    /* Cart Actions */
+    .cart-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    @media (max-width: 768px) {
+        .cart-actions {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .cart-actions .btn {
+            width: 100%;
+        }
+    }
+
+    /* Saved Items */
+    .saved-items {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-top: 3rem;
+    }
+
+    .saved-items-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--dark);
+    }
+
+    .saved-items-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .saved-item {
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .saved-item img {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<header class="page-header">
+    <div class="container">
+        <h1>Your Shopping Cart</h1>
+        <p>Review your items and proceed to checkout</p>
+    </div>
+</header>
+
+<div class="container">
+    {% if cart_items %}
+    <div class="cart-container">
+        <!-- Cart Items -->
+        <div class="cart-items">
+            <h2 class="summary-title">Cart Items ({{ cart_items|length }})</h2>
+            
+            {% for item in cart_items %}
+            <div class="cart-item" id="cart-item-{{ item.id }}">
+                <div class="cart-item-image">
+                    {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
+                         alt="{{ item.product.name }}">
+                    {% endif %}
+                </div>
+                
+                <div class="cart-item-info">
+                    <h3>{{ item.product.name }}</h3>
+                    <p>{{ item.product.category.name }}</p>
+                    <p class="stock-status">
+                        {% if item.product.stock > 10 %}
+                        <span style="color: var(--success);">In Stock</span>
+                        {% elif item.product.stock > 0 %}
+                        <span style="color: var(--secondary);">Only {{ item.product.stock }} left</span>
+                        {% else %}
+                        <span style="color: var(--danger);">Out of Stock</span>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <div class="cart-item-quantity">
+                    <button class="quantity-btn" onclick="updateQuantity({{ item.id }}, -1)">-</button>
+                    <input type="number" class="quantity-input" id="quantity-{{ item.id }}" 
+                           value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}">
+                    <button class="quantity-btn" onclick="updateQuantity({{ item.id }}, 1)">+</button>
+                </div>
+                
+                <div class="cart-item-price">
+                    $<span id="price-{{ item.id }}">{{ item.product.price|floatformat:2 }}</span>
+                </div>
+                
+                <button class="remove-item" onclick="removeItem({{ item.id }})" title="Remove item">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            {% endfor %}
+            
+            <!-- Cart Actions -->
+            <div class="cart-actions">
+                <a href="{% url 'product_list' %}" class="btn" style="background: #e5e7eb; color: var(--dark);">
+                    <i class="fas fa-arrow-left"></i> Continue Shopping
+                </a>
+                <button class="btn btn-secondary" onclick="clearCart()">
+                    <i class="fas fa-trash"></i> Clear Cart
+                </button>
+            </div>
+        </div>
+
+        <!-- Cart Summary -->
+        <div class="cart-summary">
+            <h2 class="summary-title">Order Summary</h2>
+            
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>$<span id="subtotal">{{ total_price|floatformat:2 }}</span></span>
+            </div>
+            
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span id="shipping-cost">
+                    {% if total_price >= 50 %}
+                    <span style="color: var(--success);">FREE</span>
+                    {% else %}
+                    $5.00
+                    {% endif %}
+                </span>
+            </div>
+            
+            <div class="summary-row">
+                <span>Tax</span>
+                <span>$<span id="tax">{% widthratio total_price 100 10 %}</span></span>
+            </div>
+            
+            <div class="discount-code">
+                <input type="text" placeholder="Discount code" id="discount-code">
+                <button class="btn btn-primary" onclick="applyDiscount()">Apply</button>
+            </div>
+            
+            <div class="summary-row summary-total">
+                <span>Total</span>
+                <span>$<span id="total">{{ total_price|add:"5"|floatformat:2 }}</span></span>
+            </div>
+            
+            <a href="{% url 'checkout' %}" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">
+                <i class="fas fa-lock"></i> Proceed to Checkout
+            </a>
+            
+            <p style="text-align: center; margin-top: 1rem; color: var(--gray); font-size: 0.9rem;">
+                <i class="fas fa-lock"></i> Secure checkout
+            </p>
+        </div>
+    </div>
+
+    <!-- Saved for Later -->
+    <div class="saved-items">
+        <h2 class="saved-items-title">Saved for Later</h2>
+        <div class="saved-items-grid">
+            <div class="saved-item">
+                <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Product">
+                <div>
+                    <h4>Product Name</h4>
+                    <p>$49.99</p>
+                </div>
+            </div>
+            <!-- More saved items... -->
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty Cart -->
+    <div class="empty-cart">
+        <i class="fas fa-shopping-cart"></i>
+        <h2>Your cart is empty</h2>
+        <p>Looks like you haven't added any items to your cart yet. Start shopping to fill it up!</p>
+        <a href="{% url 'product_list' %}" class="continue-shopping">
+            <i class="fas fa-shopping-bag"></i> Start Shopping
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateQuantity(itemId, change) {
+        const quantityInput = document.getElementById(`quantity-${itemId}`);
+        let quantity = parseInt(quantityInput.value) + change;
+        
+        // Ensure quantity is within bounds
+        const maxQuantity = parseInt(quantityInput.max);
+        if (quantity < 1) quantity = 1;
+        if (quantity > maxQuantity) quantity = maxQuantity;
+        
+        quantityInput.value = quantity;
+        
+        // Update price
+        const priceElement = document.getElementById(`price-${itemId}`);
+        const unitPrice = parseFloat(priceElement.textContent) / parseInt(quantityInput.oldValue || quantity);
+        priceElement.textContent = (unitPrice * quantity).toFixed(2);
+        quantityInput.oldValue = quantity;
+        
+        // Update totals
+        updateCartTotals();
+    }
+
+    function removeItem(itemId) {
+        const cartItem = document.getElementById(`cart-item-${itemId}`);
+        cartItem.style.opacity = '0.5';
+        cartItem.style.transform = 'translateX(-100px)';
+        
+        setTimeout(() => {
+            cartItem.remove();
+            updateCartTotals();
+            
+            // Show empty cart message if no items left
+            if (document.querySelectorAll('.cart-item').length === 0) {
+                window.location.reload();
+            }
+        }, 500);
+    }
+
+    function clearCart() {
+        if (confirm('Are you sure you want to clear your cart?')) {
+            const cartItems = document.querySelectorAll('.cart-item');
+            cartItems.forEach(item => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-100px)';
+            });
+            
+            setTimeout(() => {
+                window.location.href = "{% url 'home' %}";
+            }, 1000);
+        }
+    }
+
+    function updateCartTotals() {
+        let subtotal = 0;
+        
+        // Calculate subtotal
+        document.querySelectorAll('.cart-item-price span').forEach(priceElement => {
+            subtotal += parseFloat(priceElement.textContent);
+        });
+        
+        // Update subtotal
+        document.getElementById('subtotal').textContent = subtotal.toFixed(2);
+        
+        // Update shipping
+        const shippingCost = subtotal >= 50 ? 0 : 5;
+        const shippingElement = document.getElementById('shipping-cost');
+        shippingElement.innerHTML = shippingCost === 0 ? 
+            '<span style="color: var(--success);">FREE</span>' : 
+            `$${shippingCost.toFixed(2)}`;
+        
+        // Update tax (10%)
+        const tax = subtotal * 0.1;
+        document.getElementById('tax').textContent = tax.toFixed(2);
+        
+        // Update total
+        const total = subtotal + shippingCost + tax;
+        document.getElementById('total').textContent = total.toFixed(2);
+    }
+
+    function applyDiscount() {
+        const discountCode = document.getElementById('discount-code').value.trim();
+        
+        if (discountCode === 'SHOPEASY10') {
+            const subtotal = parseFloat(document.getElementById('subtotal').textContent);
+            const discount = subtotal * 0.1;
+            const total = parseFloat(document.getElementById('total').textContent);
+            
+            // Update total with discount
+            document.getElementById('total').textContent = (total - discount).toFixed(2);
+            
+            // Show success message
+            alert('Discount applied! You saved $' + discount.toFixed(2));
+        } else if (discountCode) {
+            alert('Invalid discount code. Try "SHOPEASY10" for 10% off!');
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Update totals on page load
+        updateCartTotals();
+        
+        // Quantity input change
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const itemId = this.id.split('-')[1];
+                const quantity = parseInt(this.value);
+                const maxQuantity = parseInt(this.max);
+                
+                if (quantity < 1) this.value = 1;
+                if (quantity > maxQuantity) this.value = maxQuantity;
+                
+                updateQuantity(parseInt(itemId), 0);
+            });
+        });
+    });
+</script>
+{% endblock %}

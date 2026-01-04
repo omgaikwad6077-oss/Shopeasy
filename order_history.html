@@ -1,0 +1,593 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Order History - ShopEasy{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 3rem 0;
+        text-align: center;
+        border-radius: 0 0 20px 20px;
+        margin-bottom: 3rem;
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Orders Container */
+    .orders-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    /* Orders Filter */
+    .orders-filter {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-group label {
+        font-weight: 500;
+        color: var(--dark);
+    }
+
+    .filter-select {
+        padding: 0.5rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        background: white;
+        color: var(--dark);
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* Order Cards */
+    .order-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .order-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    }
+
+    .order-header {
+        background: #f8fafc;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .order-info {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .order-id {
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 1.1rem;
+    }
+
+    .order-date {
+        color: var(--gray);
+    }
+
+    .order-status {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+    }
+
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-processing { background: #dbeafe; color: #1e40af; }
+    .status-shipped { background: #d1fae5; color: #065f46; }
+    .status-delivered { background: #10b981; color: white; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+
+    .order-body {
+        padding: 2rem;
+    }
+
+    .order-items {
+        margin-bottom: 2rem;
+    }
+
+    .order-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .item-details {
+        flex: 1;
+    }
+
+    .item-name {
+        font-weight: 500;
+        margin-bottom: 0.3rem;
+        color: var(--dark);
+    }
+
+    .item-price {
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    .item-quantity {
+        color: var(--gray);
+        font-size: 0.9rem;
+    }
+
+    .order-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 2rem;
+        background: #f8fafc;
+        border-top: 1px solid #e5e7eb;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .order-total {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .order-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    /* No Orders */
+    .no-orders {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    .no-orders i {
+        font-size: 4rem;
+        color: var(--gray);
+        margin-bottom: 1.5rem;
+    }
+
+    .no-orders h2 {
+        margin-bottom: 1rem;
+        color: var(--dark);
+    }
+
+    .no-orders p {
+        color: var(--gray);
+        margin-bottom: 2rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 3rem;
+    }
+
+    .page-link {
+        padding: 0.5rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        color: var(--dark);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .page-link:hover,
+    .page-link.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    /* Order Details Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .modal.active {
+        display: flex;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 1;
+    }
+
+    .modal-header h2 {
+        color: var(--dark);
+    }
+
+    .close-modal {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--gray);
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .close-modal:hover {
+        background: #f3f4f6;
+        color: var(--danger);
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<header class="page-header">
+    <div class="container">
+        <h1>Order History</h1>
+        <p>View and track all your orders in one place</p>
+    </div>
+</header>
+
+<div class="container">
+    {% if orders %}
+    <!-- Orders Filter -->
+    <div class="orders-filter">
+        <div class="filter-group">
+            <label>Status:</label>
+            <select class="filter-select" id="statusFilter">
+                <option value="all">All Orders</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label>Sort by:</label>
+            <select class="filter-select" id="sortFilter">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="price_high">Price: High to Low</option>
+                <option value="price_low">Price: Low to High</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label>Time period:</label>
+            <select class="filter-select" id="periodFilter">
+                <option value="all">All time</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 3 months</option>
+                <option value="365">Last year</option>
+            </select>
+        </div>
+        
+        <button class="btn btn-primary" onclick="applyFilters()">
+            <i class="fas fa-filter"></i> Apply Filters
+        </button>
+    </div>
+
+    <!-- Order Cards -->
+    <div class="orders-container">
+        {% for order in orders %}
+        <div class="order-card" data-status="{{ order.status }}">
+            <!-- Order Header -->
+            <div class="order-header">
+                <div class="order-info">
+                    <span class="order-id">Order #{{ order.id|stringformat:"08d" }}</span>
+                    <span class="order-date">{{ order.created_at|date:"F d, Y" }}</span>
+                </div>
+                <span class="order-status status-{{ order.status }}">
+                    {{ order.get_status_display }}
+                </span>
+            </div>
+
+            <!-- Order Body -->
+            <div class="order-body">
+                <div class="order-items">
+                    {% for item in order.items.all %}
+                    <div class="order-item">
+                        <div class="item-image">
+                            {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                            {% else %}
+                            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
+                                 alt="{{ item.product.name }}">
+                            {% endif %}
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name">{{ item.product.name }}</div>
+                            <div class="item-price">${{ item.price|floatformat:2 }} × {{ item.quantity }}</div>
+                        </div>
+                        <div class="item-total">${{ item.price|floatformat:"2" }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Shipping Address -->
+                <div style="margin-top: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 8px;">
+                    <strong>Shipping Address:</strong>
+                    <p style="margin-top: 0.5rem; color: var(--dark);">{{ order.shipping_address }}</p>
+                </div>
+            </div>
+
+            <!-- Order Footer -->
+            <div class="order-footer">
+                <div class="order-total">Total: ${{ order.total_amount|floatformat:2 }}</div>
+                <div class="order-actions">
+                    <button class="btn btn-primary" onclick="viewOrderDetails({{ order.id }})">
+                        <i class="fas fa-eye"></i> View Details
+                    </button>
+                    {% if order.status == 'pending' %}
+                    <button class="btn" style="background: #fee2e2; color: #991b1b;" 
+                            onclick="cancelOrder({{ order.id }})">
+                        <i class="fas fa-times"></i> Cancel Order
+                    </button>
+                    {% endif %}
+                    {% if order.status == 'shipped' or order.status == 'delivered' %}
+                    <button class="btn btn-secondary" onclick="trackOrder({{ order.id }})">
+                        <i class="fas fa-shipping-fast"></i> Track Order
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <a href="#" class="page-link">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        <a href="#" class="page-link active">1</a>
+        <a href="#" class="page-link">2</a>
+        <a href="#" class="page-link">3</a>
+        <a href="#" class="page-link">4</a>
+        <a href="#" class="page-link">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+    </div>
+    {% else %}
+    <!-- No Orders -->
+    <div class="no-orders">
+        <i class="fas fa-box-open"></i>
+        <h2>No Orders Yet</h2>
+        <p>You haven't placed any orders yet. Start shopping to see your order history here!</p>
+        <a href="{% url 'product_list' %}" class="btn btn-primary">
+            <i class="fas fa-shopping-bag"></i> Start Shopping
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal" id="orderDetailsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Order Details</h2>
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Content will be loaded dynamically -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // View order details
+    function viewOrderDetails(orderId) {
+        const modal = document.getElementById('orderDetailsModal');
+        const modalBody = document.getElementById('modalBody');
+        
+        // Show loading
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 2rem;">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p style="margin-top: 1rem;">Loading order details...</p>
+            </div>
+        `;
+        
+        modal.classList.add('active');
+        
+        // In a real application, you would fetch order details from the server
+        // For now, we'll show static data
+        setTimeout(() => {
+            modalBody.innerHTML = `
+                <div class="order-details">
+                    <h3 style="margin-bottom: 1rem; color: var(--dark);">Order #${orderId.toString().padStart(8, '0')}</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0;">
+                        <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
+                            <strong>Order Date</strong>
+                            <p style="margin-top: 0.5rem;">${new Date().toLocaleDateString()}</p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
+                            <strong>Status</strong>
+                            <p style="margin-top: 0.5rem;">
+                                <span class="order-status status-delivered" style="display: inline-block; padding: 0.3rem 0.8rem;">Delivered</span>
+                            </p>
+                        </div>
+                        <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
+                            <strong>Total Amount</strong>
+                            <p style="margin-top: 0.5rem; color: var(--primary); font-weight: 600;">$149.99</p>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin: 1.5rem 0 1rem;">Items</h4>
+                    <div class="order-items">
+                        <!-- Sample items would go here -->
+                    </div>
+                    
+                    <h4 style="margin: 1.5rem 0 1rem;">Shipping Information</h4>
+                    <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
+                        <p>123 Main St, City, State 12345</p>
+                    </div>
+                </div>
+            `;
+        }, 500);
+    }
+
+    // Close modal
+    function closeModal() {
+        document.getElementById('orderDetailsModal').classList.remove('active');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('orderDetailsModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+
+    // Cancel order
+    function cancelOrder(orderId) {
+        if (confirm('Are you sure you want to cancel this order?')) {
+            // In a real application, you would send a request to cancel the order
+            alert(`Order #${orderId} has been cancelled.`);
+            
+            // Reload the page or update the UI
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+    }
+
+    // Track order
+    function trackOrder(orderId) {
+        alert(`Tracking order #${orderId}. In a real application, this would show tracking details.`);
+    }
+
+    // Apply filters
+    function applyFilters() {
+        const statusFilter = document.getElementById('statusFilter').value;
+        const orderCards = document.querySelectorAll('.order-card');
+        
+        orderCards.forEach(card => {
+            if (statusFilter === 'all' || card.dataset.status === statusFilter) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // Initialize filters
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize filter dropdowns
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+        
+        if (status) {
+            document.getElementById('statusFilter').value = status;
+            applyFilters();
+        }
+    });
+</script>
+{% endblock %}

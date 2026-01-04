@@ -1,0 +1,153 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Express Checkout - ShopEasy{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .checkout-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .checkout-header h1 {
+        color: #4f46e5;
+        margin-bottom: 0.5rem;
+    }
+    
+    .order-summary {
+        background: #f9fafb;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+    
+    .order-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .order-item:last-child {
+        border-bottom: none;
+    }
+    
+    .order-item-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .order-item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .order-details {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+        font-weight: 600;
+        font-size: 1.2rem;
+        color: #4f46e5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="checkout-container">
+        <div class="checkout-header">
+            <h1>Express Checkout</h1>
+            <p>Complete your purchase quickly and securely</p>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="order-summary">
+            <h3>Order Summary</h3>
+            <div class="order-item">
+                <div class="order-item-image">
+                    <img src="{{ product.get_image_url }}" alt="{{ product.name }}">
+                </div>
+                <div style="flex: 1;">
+                    <h4>{{ product.name }}</h4>
+                    <p>Quantity: {{ quantity }}</p>
+                    <p style="color: #4f46e5; font-weight: 600;">${{ product.price }} × {{ quantity }}</p>
+                </div>
+            </div>
+            
+            <div class="order-details">
+                <div style="width: 100%;">
+                    <div class="detail-row">
+                        <span>Subtotal</span>
+                        <span>${{ total|floatformat:2 }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Shipping</span>
+                        <span>
+                            {% if shipping == 0 %}
+                            <span style="color: #10b981;">FREE</span>
+                            {% else %}
+                            ${{ shipping|floatformat:2 }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Tax</span>
+                        <span>${{ tax|floatformat:2 }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Total</span>
+                        <span>${{ grand_total|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Checkout Form -->
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Shipping Address</label>
+                <textarea name="shipping_address" rows="4" 
+                         placeholder="Enter your complete shipping address"
+                         style="width: 100%; padding: 0.8rem; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit;"
+                         required></textarea>
+            </div>
+            
+            <button type="submit" 
+                    style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
+                <i class="fas fa-lock"></i> Complete Purchase - ${{ grand_total|floatformat:2 }}
+            </button>
+            
+            <p style="text-align: center; margin-top: 1rem; color: #6b7280;">
+                <i class="fas fa-shield-alt"></i> Secure SSL Encryption
+            </p>
+        </form>
+    </div>
+</div>
+{% endblock %}

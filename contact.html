@@ -1,0 +1,754 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Contact Us - ShopEasy{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .contact-hero {
+        background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                    url('https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 6rem 0;
+        text-align: center;
+        border-radius: 0 0 20px 20px;
+        margin-bottom: 4rem;
+    }
+
+    .contact-hero h1 {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .contact-hero p {
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin: 0 auto;
+        opacity: 0.9;
+    }
+
+    /* Contact Container */
+    .contact-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        margin-bottom: 4rem;
+    }
+
+    @media (max-width: 768px) {
+        .contact-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Contact Info */
+    .contact-info {
+        background: white;
+        padding: 3rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .info-section {
+        margin-bottom: 3rem;
+    }
+
+    .info-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-section h2 {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .info-section h2 i {
+        color: var(--primary);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-card {
+        background: #f8fafc;
+        padding: 1.5rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .info-icon {
+        font-size: 2rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .info-card h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        color: var(--dark);
+    }
+
+    .info-card p {
+        color: var(--gray);
+        line-height: 1.6;
+    }
+
+    .info-card a {
+        color: var(--primary);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .info-card a:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    /* Social Links */
+    .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .social-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
+        background: var(--primary);
+        color: white;
+        border-radius: 50%;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+        background: var(--primary-dark);
+        transform: translateY(-3px);
+    }
+
+    /* FAQ Section */
+    .faq-section {
+        margin-top: 3rem;
+    }
+
+    .faq-item {
+        margin-bottom: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .faq-question {
+        padding: 1.5rem;
+        background: white;
+        font-weight: 600;
+        color: var(--dark);
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .faq-question:hover {
+        background: #f8fafc;
+    }
+
+    .faq-question i {
+        transition: transform 0.3s ease;
+    }
+
+    .faq-item.active .faq-question i {
+        transform: rotate(180deg);
+    }
+
+    .faq-answer {
+        padding: 0 1.5rem;
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .faq-item.active .faq-answer {
+        padding: 1.5rem;
+        max-height: 500px;
+    }
+
+    /* Contact Form */
+    .contact-form {
+        background: white;
+        padding: 3rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .contact-form h2 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        color: var(--dark);
+    }
+
+    .contact-form p {
+        color: var(--gray);
+        margin-bottom: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--dark);
+    }
+
+    .form-group label.required::after {
+        content: ' *';
+        color: var(--danger);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    /* Map Section */
+    .map-section {
+        margin: 4rem 0;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        height: 400px;
+    }
+
+    .map-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    /* Success Message */
+    .success-message {
+        display: none;
+        background: #d1fae5;
+        color: #065f46;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        border-left: 4px solid #10b981;
+    }
+
+    .success-message i {
+        margin-right: 0.5rem;
+    }
+
+    /* Form Validation */
+    .form-control.error {
+        border-color: var(--danger);
+    }
+
+    .error-message {
+        color: var(--danger);
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: none;
+    }
+
+    /* Working Hours */
+    .hours-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    .hours-table tr {
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .hours-table tr:last-child {
+        border-bottom: none;
+    }
+
+    .hours-table td {
+        padding: 0.8rem 0;
+        color: var(--dark);
+    }
+
+    .hours-table td:first-child {
+        font-weight: 500;
+    }
+
+    .hours-table td:last-child {
+        text-align: right;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .contact-hero h1 {
+            font-size: 2.5rem;
+        }
+
+        .contact-hero p {
+            font-size: 1.1rem;
+        }
+
+        .contact-info,
+        .contact-form {
+            padding: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="contact-hero">
+    <div class="container">
+        <h1>Get In Touch</h1>
+        <p>We're here to help! Reach out to us with any questions, feedback, or concerns.</p>
+    </div>
+</section>
+
+<div class="container">
+    <!-- Success Message -->
+    {% if messages %}
+    <div class="success-message" id="successMessage">
+        <i class="fas fa-check-circle"></i>
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="contact-container">
+        <!-- Contact Info -->
+        <div class="contact-info">
+            <!-- Contact Details -->
+            <div class="info-section">
+                <h2><i class="fas fa-map-marker-alt"></i> Our Location</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <h3>Headquarters</h3>
+                        <p>123 Ambegoan Budruk<br>Pune City , 411041<br>Maharashtra</p>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-warehouse"></i>
+                        </div>
+                        <h3>Warehouse</h3>
+                        <p>123, Shivaji Nagar <br>Nashik 423101 <br>Maharashtra</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Methods -->
+            <div class="info-section">
+                <h2><i class="fas fa-phone-alt"></i> Contact Methods</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <h3>Phone Support</h3>
+                        <p>
+                            <a href="tel:+11234567890">+91 7218362543</a><br>
+                            Monday - Friday: 9AM - 6PM EST
+                        </p>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h3>Email Support</h3>
+                        <p>
+                            <a href="mailto:support@shopeasy.com">sunnygaikwad4747@gmail.com</a><br>
+                            Response within 24 hours
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Media -->
+            <div class="info-section">
+                <h2><i class="fas fa-share-alt"></i> Connect With Us</h2>
+                <p>Follow us on social media for updates, promotions, and more!</p>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/profile.php?id=100069135073747" class="social-link" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://x.com/GaikwadOm43871" class="social-link" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://www.instagram.com/om_gaikwad._09/" class="social-link" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/om-gaikwad-432b53335/" class="social-link" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="social-link" title="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Working Hours -->
+            <div class="info-section">
+                <h2><i class="fas fa-clock"></i> Working Hours</h2>
+                <table class="hours-table">
+                    <tr>
+                        <td>Monday - Friday</td>
+                        <td>9:00 AM - 8:00 PM</td>
+                    </tr>
+                    <tr>
+                        <td>Saturday</td>
+                        <td>10:00 AM - 6:00 PM</td>
+                    </tr>
+                    <tr>
+                        <td>Sunday</td>
+                        <td>12:00 PM - 5:00 PM</td>
+                    </tr>
+                    <tr>
+                        <td>Holidays</td>
+                        <td>Closed</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- FAQ Section -->
+            <div class="faq-section">
+                <h2><i class="fas fa-question-circle"></i> Frequently Asked Questions</h2>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        How long does shipping take?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Standard shipping takes 3-5 business days. Express shipping (2-day) and overnight shipping are also available at checkout.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        What is your return policy?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We offer a 30-day return policy for most items. Items must be in original condition with tags attached. Some restrictions apply.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        Do you ship internationally?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! We ship to over 50 countries worldwide. Shipping costs and delivery times vary by location.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="contact-form">
+            <h2>Send Us a Message</h2>
+            <p>Fill out the form below and we'll get back to you as soon as possible.</p>
+
+            <form method="post" id="contactForm">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="name" class="required">Full Name</label>
+                    <input type="text" id="name" name="name" class="form-control" 
+                           placeholder="John Doe" required>
+                    <div class="error-message" id="name-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="required">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" 
+                           placeholder="john@example.com" required>
+                    <div class="error-message" id="email-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" class="form-control" 
+                           placeholder="+1 (123) 456-7890">
+                </div>
+
+                <div class="form-group">
+                    <label for="subject" class="required">Subject</label>
+                    <select id="subject" name="subject" class="form-control" required>
+                        <option value="">Select a subject</option>
+                        <option value="general">General Inquiry</option>
+                        <option value="order">Order Support</option>
+                        <option value="returns">Returns & Refunds</option>
+                        <option value="shipping">Shipping Questions</option>
+                        <option value="technical">Technical Support</option>
+                        <option value="business">Business Inquiries</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <div class="error-message" id="subject-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="message" class="required">Message</label>
+                    <textarea id="message" name="message" class="form-control" 
+                              placeholder="How can we help you?" required></textarea>
+                    <div class="error-message" id="message-error"></div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem;">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Map Section -->
+   <div class="map-section">
+    <div class="map-container">
+        <iframe
+            src="https://www.google.com/maps?q=Pune,Maharashtra,India&output=embed"
+            width="100%"
+            height="350"
+            style="border:0;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+    </div>
+</div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Show success message if it exists
+    document.addEventListener('DOMContentLoaded', function() {
+        const successMessage = document.getElementById('successMessage');
+        if (successMessage) {
+            successMessage.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                successMessage.style.opacity = '0';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 300);
+            }, 5000);
+        }
+    });
+
+    // Toggle FAQ
+    function toggleFAQ(element) {
+        const faqItem = element.parentElement;
+        faqItem.classList.toggle('active');
+        
+        // Close other FAQs
+        if (faqItem.classList.contains('active')) {
+            document.querySelectorAll('.faq-item').forEach(item => {
+                if (item !== faqItem && item.classList.contains('active')) {
+                    item.classList.remove('active');
+                }
+            });
+        }
+    }
+
+    // Form validation
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form values
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const subject = document.getElementById('subject').value;
+        const message = document.getElementById('message').value.trim();
+        
+        let isValid = true;
+        
+        // Reset errors
+        document.querySelectorAll('.error-message').forEach(el => {
+            el.style.display = 'none';
+        });
+        document.querySelectorAll('.form-control').forEach(el => {
+            el.classList.remove('error');
+        });
+        
+        // Validate name
+        if (!name) {
+            showError('name', 'Name is required');
+            isValid = false;
+        }
+        
+        // Validate email
+        if (!email) {
+            showError('email', 'Email is required');
+            isValid = false;
+        } else if (!isValidEmail(email)) {
+            showError('email', 'Please enter a valid email address');
+            isValid = false;
+        }
+        
+        // Validate subject
+        if (!subject) {
+            showError('subject', 'Please select a subject');
+            isValid = false;
+        }
+        
+        // Validate message
+        if (!message) {
+            showError('message', 'Message is required');
+            isValid = false;
+        } else if (message.length < 10) {
+            showError('message', 'Message must be at least 10 characters');
+            isValid = false;
+        }
+        
+        if (isValid) {
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            submitBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                // In a real application, you would submit the form here
+                // For demo purposes, we'll show a success message
+                const successMessage = document.getElementById('successMessage');
+                if (!successMessage) {
+                    const newSuccessMessage = document.createElement('div');
+                    newSuccessMessage.className = 'success-message';
+                    newSuccessMessage.id = 'successMessage';
+                    newSuccessMessage.innerHTML = `
+                        <i class="fas fa-check-circle"></i>
+                        Thank you for your message! We'll get back to you soon.
+                    `;
+                    this.parentElement.insertBefore(newSuccessMessage, this);
+                    newSuccessMessage.style.display = 'block';
+                }
+                
+                // Reset form
+                this.reset();
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                // Auto-hide success message after 5 seconds
+                setTimeout(() => {
+                    const msg = document.getElementById('successMessage');
+                    if (msg) {
+                        msg.style.opacity = '0';
+                        setTimeout(() => {
+                            msg.style.display = 'none';
+                        }, 300);
+                    }
+                }, 5000);
+            }, 1500);
+        }
+    });
+
+    function showError(fieldId, message) {
+        const input = document.getElementById(fieldId);
+        const errorEl = document.getElementById(`${fieldId}-error`);
+        
+        input.classList.add('error');
+        errorEl.textContent = message;
+        errorEl.style.display = 'block';
+    }
+
+    function isValidEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+    // Phone number formatting
+    document.getElementById('phone')?.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        
+        if (value.length > 0) {
+            value = '+1 (' + value;
+            
+            if (value.length > 7) {
+                value = value.substring(0, 7) + ') ' + value.substring(7);
+            }
+            if (value.length > 12) {
+                value = value.substring(0, 12) + '-' + value.substring(12, 16);
+            }
+        }
+        
+        e.target.value = value.substring(0, 17);
+    });
+
+    // Initialize FAQ
+    document.addEventListener('DOMContentLoaded', function() {
+        // Open first FAQ by default
+        const firstFaq = document.querySelector('.faq-item');
+        if (firstFaq) {
+            firstFaq.classList.add('active');
+        }
+        
+        // Add animation to info cards
+        const infoCards = document.querySelectorAll('.info-card');
+        infoCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-5px)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    });
+</script>
+{% endblock %}

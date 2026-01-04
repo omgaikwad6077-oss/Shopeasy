@@ -1,0 +1,512 @@
+{% extends 'store/base.html' %}
+
+{% block title %}ShopEasy - Products{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 3rem 0;
+        text-align: center;
+        border-radius: 0 0 20px 20px;
+        margin-bottom: 3rem;
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Filter Sidebar */
+    .products-container {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .products-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .filter-sidebar {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        height: fit-content;
+    }
+
+    .filter-group {
+        margin-bottom: 2rem;
+    }
+
+    .filter-group h3 {
+        color: var(--dark);
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+        border-bottom: 2px solid var(--primary);
+        padding-bottom: 0.5rem;
+    }
+
+    .filter-options {
+        list-style: none;
+    }
+
+    .filter-options li {
+        margin-bottom: 0.5rem;
+    }
+
+    .filter-options a {
+        color: var(--dark);
+        text-decoration: none;
+        display: block;
+        padding: 0.5rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .filter-options a:hover,
+    .filter-options a.active {
+        background: var(--primary);
+        color: white;
+    }
+
+    .price-range {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .price-input {
+        flex: 1;
+    }
+
+    /* Search Bar */
+    .search-container {
+        margin-bottom: 2rem;
+    }
+
+    .search-box {
+        position: relative;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 50px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray);
+    }
+
+    /* Products Grid */
+    .products-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .products-count {
+        color: var(--gray);
+    }
+
+    .sort-select {
+        padding: 0.5rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        background: white;
+        color: var(--dark);
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        position: relative;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .product-image {
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .product-card:hover .product-image img {
+        transform: scale(1.05);
+    }
+
+    .product-info {
+        padding: 1.5rem;
+    }
+
+    .product-category {
+        color: var(--primary);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+    }
+
+    .product-name {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .product-price {
+        color: var(--primary);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .product-actions .btn {
+        flex: 1;
+    }
+
+    .stock-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .stock-in {
+        background: var(--success);
+        color: white;
+    }
+
+    .stock-low {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .stock-out {
+        background: var(--danger);
+        color: white;
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 3rem;
+    }
+
+    .page-link {
+        padding: 0.5rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        color: var(--dark);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .page-link:hover,
+    .page-link.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    /* No Results */
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .no-results i {
+        font-size: 3rem;
+        color: var(--gray);
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<header class="page-header">
+    <div class="container">
+        <h1>Our Products</h1>
+        <p>Discover our wide range of quality products</p>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Search Bar -->
+    <div class="search-container">
+        <form method="get" action="{% url 'product_list' %}" class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" name="search" placeholder="Search products..." value="{{ search_query }}">
+        </form>
+    </div>
+
+    <div class="products-container">
+        <!-- Filter Sidebar -->
+        <aside class="filter-sidebar">
+            <div class="filter-group">
+                <h3>Categories</h3>
+                <ul class="filter-options">
+                    <li>
+                        <a href="{% url 'product_list' %}" 
+                           class="{% if not selected_category %}active{% endif %}">
+                            All Categories
+                        </a>
+                    </li>
+                    {% for category in categories %}
+                    <li>
+                        <a href="{% url 'product_list' %}?category={{ category.id }}"
+                           class="{% if selected_category == category.id|stringformat:'i' %}active{% endif %}">
+                            {{ category.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="filter-group">
+                <h3>Price Range</h3>
+                <div class="price-range">
+                    <input type="number" placeholder="Min" class="form-control price-input">
+                    <span>-</span>
+                    <input type="number" placeholder="Max" class="form-control price-input">
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Availability</h3>
+                <ul class="filter-options">
+                    <li><a href="#">In Stock</a></li>
+                    <li><a href="#">Out of Stock</a></li>
+                </ul>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;">
+                <i class="fas fa-filter"></i> Apply Filters
+            </button>
+        </aside>
+
+        <!-- Products Section -->
+        <main>
+            <div class="products-header">
+                <div>
+                    <h2>All Products</h2>
+                    <p class="products-count">{{ products.count }} products found</p>
+                </div>
+                <select class="sort-select">
+                    <option>Sort by: Featured</option>
+                    <option>Price: Low to High</option>
+                    <option>Price: High to Low</option>
+                    <option>Newest First</option>
+                </select>
+            </div>
+
+            {% if products %}
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <!-- Stock Badge -->
+                    {% if product.stock > 10 %}
+                    <span class="stock-badge stock-in">In Stock</span>
+                    {% elif product.stock > 0 %}
+                    <span class="stock-badge stock-low">Low Stock</span>
+                    {% else %}
+                    <span class="stock-badge stock-out">Out of Stock</span>
+                    {% endif %}
+
+                    <!-- Product Image -->
+                    <div class="product-image">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                             alt="{{ product.name }}">
+                        {% endif %}
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="product-info">
+                        <div class="product-category">{{ product.category.name }}</div>
+                        <h3 class="product-name">{{ product.name }}</h3>
+                        <p class="product-description">{{ product.description|truncatewords:15 }}</p>
+                        <p class="product-price">${{ product.price }}</p>
+                        
+                        <div class="product-actions">
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            {% if user.is_authenticated and product.stock > 0 %}
+                            <form method="post" action="{% url 'add_to_cart' product.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-secondary">
+                                    <i class="fas fa-cart-plus"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <a href="#" class="page-link">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                <a href="#" class="page-link active">1</a>
+                <a href="#" class="page-link">2</a>
+                <a href="#" class="page-link">3</a>
+                <a href="#" class="page-link">4</a>
+                <a href="#" class="page-link">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+            {% else %}
+            <!-- No Results -->
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <h3>No products found</h3>
+                <p>Try adjusting your search or filter to find what you're looking for.</p>
+                <a href="{% url 'product_list' %}" class="btn btn-primary mt-3">
+                    Clear Filters
+                </a>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Price range filter
+        const priceInputs = document.querySelectorAll('.price-input');
+        const applyFilterBtn = document.querySelector('.btn-primary[style*="width: 100%"]');
+        
+        applyFilterBtn.addEventListener('click', function() {
+            const minPrice = priceInputs[0].value;
+            const maxPrice = priceInputs[1].value;
+            
+            if (minPrice || maxPrice) {
+                let url = new URL(window.location.href);
+                if (minPrice) url.searchParams.set('min_price', minPrice);
+                if (maxPrice) url.searchParams.set('max_price', maxPrice);
+                window.location.href = url.toString();
+            }
+        });
+
+        // Sort functionality
+        const sortSelect = document.querySelector('.sort-select');
+        sortSelect.addEventListener('change', function() {
+            const sortValue = this.value.toLowerCase();
+            let url = new URL(window.location.href);
+            
+            if (sortValue.includes('price low')) {
+                url.searchParams.set('sort', 'price_asc');
+            } else if (sortValue.includes('price high')) {
+                url.searchParams.set('sort', 'price_desc');
+            } else if (sortValue.includes('newest')) {
+                url.searchParams.set('sort', 'newest');
+            }
+            
+            window.location.href = url.toString();
+        });
+
+        // Search on enter
+        const searchInput = document.querySelector('input[name="search"]');
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                this.form.submit();
+            }
+        });
+
+        // Add to cart animation
+        const addToCartForms = document.querySelectorAll('form[action*="add-to-cart"]');
+        addToCartForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const button = this.querySelector('button');
+                const originalText = button.innerHTML;
+                
+                // Show loading state
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                button.disabled = true;
+                
+                // Submit form after animation
+                setTimeout(() => {
+                    this.submit();
+                }, 500);
+            });
+        });
+    });
+</script>
+{% endblock %}
+<!-- In product_list.html, make sure the View button links to product_detail -->
+<a href="{% url 'product_detail' product.id %}" class="btn" style="background: #4f46e5; color: white;">
+    <i class="fas fa-eye"></i> View
+</a>
+
+<!-- And Add to Cart form has correct action -->
+<form method="post" action="{% url 'add_to_cart' product.id %}">
+    {% csrf_token %}
+    <button type="submit" class="btn" style="background: #f97316; color: white;">
+        <i class="fas fa-cart-plus"></i> Add
+    </button>
+</form>

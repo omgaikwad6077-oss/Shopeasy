@@ -1,0 +1,534 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Order Confirmation - ShopEasy{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Confirmation Container */
+    .confirmation-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    /* Success Header */
+    .success-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 4rem 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .success-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        animation: bounce 1s ease infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .success-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .success-header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Order Details */
+    .order-details {
+        padding: 3rem 2rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        margin-bottom: 2rem;
+        color: var(--dark);
+        text-align: center;
+        position: relative;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: var(--secondary);
+        border-radius: 2px;
+    }
+
+    /* Order Info Cards */
+    .order-info-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .info-card {
+        background: #f8fafc;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border-left: 4px solid var(--primary);
+    }
+
+    .info-card h3 {
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+
+    .info-card p {
+        color: var(--dark);
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    /* Order Items */
+    .order-items {
+        margin-bottom: 3rem;
+    }
+
+    .order-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .order-item:hover {
+        background: #f8fafc;
+    }
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 10px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .item-details {
+        flex: 1;
+    }
+
+    .item-name {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--dark);
+    }
+
+    .item-price {
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    .item-quantity {
+        color: var(--gray);
+    }
+
+    /* Order Summary */
+    .order-summary {
+        background: #f8fafc;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .summary-row:last-child {
+        border-bottom: none;
+    }
+
+    .summary-total {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        border-top: 2px solid #e5e7eb;
+        padding-top: 1rem;
+        margin-top: 1rem;
+    }
+
+    /* Next Steps */
+    .next-steps {
+        margin-top: 3rem;
+        padding-top: 3rem;
+        border-top: 2px solid #e5e7eb;
+    }
+
+    .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .step-card {
+        text-align: center;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+    .step-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .step-icon {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .step-card h3 {
+        margin-bottom: 1rem;
+        color: var(--dark);
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .action-buttons .btn {
+        min-width: 200px;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-block;
+        padding: 0.5rem 1.5rem;
+        border-radius: 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-processing {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-shipped {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-delivered {
+        background: #10b981;
+        color: white;
+    }
+
+    /* Tracking */
+    .tracking-info {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin: 2rem 0;
+    }
+
+    .tracking-info h3 {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .tracking-number {
+        background: rgba(255,255,255,0.1);
+        padding: 1rem;
+        border-radius: 10px;
+        font-family: monospace;
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+    }
+
+    .copy-btn {
+        background: white;
+        color: var(--primary);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .copy-btn:hover {
+        background: #f3f4f6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="confirmation-container">
+        <!-- Success Header -->
+        <div class="success-header">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1>Order Confirmed!</h1>
+            <p>Thank you for your purchase. Your order has been successfully placed and is being processed.</p>
+        </div>
+
+        <!-- Order Details -->
+        <div class="order-details">
+            <h2 class="section-title">Order Details</h2>
+            
+            <!-- Order Info Cards -->
+            <div class="order-info-cards">
+                <div class="info-card">
+                    <h3>Order Number</h3>
+                    <p>#{{ order.id|stringformat:"08d" }}</p>
+                </div>
+                <div class="info-card">
+                    <h3>Order Date</h3>
+                    <p>{{ order.created_at|date:"F d, Y" }}</p>
+                </div>
+                <div class="info-card">
+                    <h3>Order Status</h3>
+                    <p>
+                        <span class="status-badge status-{{ order.status }}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </p>
+                </div>
+                <div class="info-card">
+                    <h3>Total Amount</h3>
+                    <p>${{ order.total_amount|floatformat:2 }}</p>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="order-items">
+                <h3 style="margin-bottom: 1.5rem; color: var(--dark);">Order Items</h3>
+                {% for item in order.items.all %}
+                <div class="order-item">
+                    <div class="item-image">
+                        {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                        {% else %}
+                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
+                             alt="{{ item.product.name }}">
+                        {% endif %}
+                    </div>
+                    <div class="item-details">
+                        <div class="item-name">{{ item.product.name }}</div>
+                        <div class="item-price">${{ item.price|floatformat:2 }} × {{ item.quantity }}</div>
+                    </div>
+                    <div class="item-total">${{ item.price|floatformat:"2" }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Order Summary -->
+            <div class="order-summary">
+                <h3 style="margin-bottom: 1.5rem; color: var(--dark);">Order Summary</h3>
+                
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>${{ order.total_amount|floatformat:2 }}</span>
+                </div>
+                
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span>
+                        {% if order.total_amount >= 50 %}
+                        <span style="color: var(--success);">FREE</span>
+                        {% else %}
+                        $5.00
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <div class="summary-row">
+                    <span>Tax</span>
+                    <span>${% widthratio order.total_amount 100 10 %}</span>
+                </div>
+                
+                <div class="summary-row summary-total">
+                    <span>Total</span>
+                    <span>
+                        ${% if order.total_amount >= 50 %}
+                        {{ order.total_amount|add:"0"|floatformat:2 }}
+                        {% else %}
+                        {{ order.total_amount|add:"5"|floatformat:2 }}
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Shipping Information -->
+            <div class="info-card" style="margin-bottom: 2rem;">
+                <h3>Shipping Address</h3>
+                <p>{{ order.shipping_address }}</p>
+            </div>
+
+            <!-- Tracking Information -->
+            {% if order.status == 'shipped' or order.status == 'delivered' %}
+            <div class="tracking-info">
+                <h3><i class="fas fa-shipping-fast"></i> Tracking Information</h3>
+                <p>Your order has been shipped and is on its way!</p>
+                <div class="tracking-number">
+                    <span>TRACK{{ order.id|stringformat:"010d" }}</span>
+                    <button class="copy-btn" onclick="copyTrackingNumber()">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Next Steps -->
+            <div class="next-steps">
+                <h2 class="section-title">What's Next?</h2>
+                
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h3>Order Confirmation</h3>
+                        <p>You'll receive an email confirmation with all order details.</p>
+                    </div>
+                    
+                    <div class="step-card">
+                        <div class="step-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <h3>Order Processing</h3>
+                        <p>We'll prepare your order for shipping within 24 hours.</p>
+                    </div>
+                    
+                    <div class="step-card">
+                        <div class="step-icon">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <h3>Shipping Updates</h3>
+                        <p>You'll receive tracking information once your order ships.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'order_history' %}" class="btn btn-primary">
+                    <i class="fas fa-history"></i> View Order History
+                </a>
+                <a href="{% url 'product_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-shopping-bag"></i> Continue Shopping
+                </a>
+                <a href="{% url 'home' %}" class="btn" style="background: #e5e7eb; color: var(--dark);">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Copy tracking number
+    function copyTrackingNumber() {
+        const trackingNumber = document.querySelector('.tracking-number span').textContent;
+        navigator.clipboard.writeText(trackingNumber).then(() => {
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            btn.style.background = '#10b981';
+            btn.style.color = 'white';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+                btn.style.color = '';
+            }, 2000);
+        });
+    }
+
+    // Print order confirmation
+    function printOrder() {
+        window.print();
+    }
+
+    // Share order
+    function shareOrder() {
+        if (navigator.share) {
+            navigator.share({
+                title: 'My Order from ShopEasy',
+                text: `I just placed an order #${'{{ order.id }}'} on ShopEasy!`,
+                url: window.location.href
+            });
+        } else {
+            alert('Share this URL: ' + window.location.href);
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add print button if needed
+        const actionButtons = document.querySelector('.action-buttons');
+        const printBtn = document.createElement('button');
+        printBtn.className = 'btn';
+        printBtn.innerHTML = '<i class="fas fa-print"></i> Print Invoice';
+        printBtn.onclick = printOrder;
+        printBtn.style.background = '#e5e7eb';
+        printBtn.style.color = 'var(--dark)';
+        actionButtons.appendChild(printBtn);
+    });
+</script>
+{% endblock %}
